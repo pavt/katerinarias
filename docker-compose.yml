@@ -1,0 +1,26 @@
+services:
+  # Servicio 1: El sitio web (Jekyll)
+  jekyll:
+    image: jekyll/jekyll:latest
+    command: sh -c "bundle install && jekyll serve --livereload --force_polling --host 0.0.0.0"
+    ports:
+      - "4000:4000"
+      - "35729:35729"
+    volumes:
+      - .:/srv/jekyll
+    environment:
+      - JEKYLL_UID=1000
+      - JEKYLL_GID=1000
+
+  # Servicio 2: El Proxy local para el CMS (Node)
+  cms-proxy:
+    image: node:lts-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+    # CAMBIO IMPORTANTE AQUÍ:
+    # 1. Instalamos git (apk add git)
+    # 2. Corremos el servidor (npx decap-server)
+    command: sh -c "apk add --no-cache git && npx decap-server"
+    ports:
+      - "8081:8081"

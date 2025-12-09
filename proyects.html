@@ -1,0 +1,19 @@
+---
+layout: default
+title: Proyectos
+---
+
+<h1>Proyectos de Investigación</h1>
+
+<div class="projects-container">
+  {% for project in site.data.projects.projects %}
+  <div class="project-card">
+    <h2>{{ project.name }}</h2>
+    <p>{{ project.description }}</p>
+    <div class="project-meta">
+      {{ project.year_start }} {% if project.year_end %} - {{ project.year_end
+      }}{% else %} - Presente{% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>

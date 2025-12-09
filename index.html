@@ -1,39 +1,467 @@
 ---
 layout: default
-title : Homepage
-navbar_title: Home
 ---
 
-<div class="row">
-    <div class="col-lg-3 col-md-4">
-        {% include widgets/profile_card_mini.html %}
-    </div>
-    <div class="col-lg-9 col-md-8">
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="hero-content">
+    {% if site.data.site_info.group_photo %}
+    <img
+      src="{{ site.data.site_info.group_photo }}"
+      alt="Foto del Grupo GIECID"
+      class="group-photo"
+    />
+    {% endif %}
 
-        {% include widgets/profile_card_bio_only.html %}
+    <h1>{{ site.data.home.hero_title | default: "Bienvenidos a GIECID" }}</h1>
 
-        <!-- Debugging widgets -->
-        {% include widgets/debug_repo_name.html %}
-        {% include widgets/debug_url.html %}
-
-        {% if site.data.display.homepage.show_experience %}
-            {% include widgets/experience_card.html %}
-        {% endif %}
-
-        {% if site.data.display.homepage.show_news %}
-        {% assign count_news = site.news | size %}
-        {% if count_news > 0 %}
-        {% include widgets/news_card.html limit=site.data.display.homepage.num_news %}
-        {% endif %}
-        {% endif %}
-
-        {% if site.data.display.homepage.show_selected_publications %}
-        {% assign pubs = site.publications | sort: "date" | reverse | where: "selected", true %}
-        {%
-        include widgets/publication_card.html
-        publications=pubs
-        title='<i class="fas fa-star"></i> Selected Publications'
-        %}
-        {% endif %}
-    </div>
+    {% if site.data.home.hero_subtitle %}
+    <p class="hero-subtitle">{{ site.data.home.hero_subtitle }}</p>
+    {% endif %}
+  </div>
 </div>
+
+<!-- Sobre Nosotros Section -->
+<section class="about-section">
+  <div class="container">
+    <h2>{{ site.data.about.title | default: "Sobre Nosotros" }}</h2>
+
+    {% if site.data.about.content %} {{ site.data.about.content | markdownify }}
+    {% else %}
+    <p>
+      El Grupo de Investigación en Educación en Contextos Indígenas y Diversos
+      (GIECID) está conformado por académicos e investigadores con una sólida
+      trayectoria en el estudio de la educación en contextos interculturales,
+      indígenas y de diversidad sociocultural.
+    </p>
+
+    <p>
+      El grupo tiene como objetivo generar conocimiento crítico, situado y
+      pertinente que contribuya a la transformación educativa desde una
+      perspectiva de justicia social, reconociendo y valorando los saberes,
+      lenguas y epistemologías de los pueblos originarios.
+    </p>
+
+    <p>
+      GIECID promueve un enfoque colaborativo e interdisciplinario, sustentado
+      en la articulación entre universidad, comunidades y territorios, con el
+      fin de contribuir al desarrollo de políticas, prácticas y saberes
+      pedagógicos que fortalezcan los procesos educativos en contextos indígenas
+      y diversos.
+    </p>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Proyectos Destacados -->
+{% if site.data.home.show_featured_projects %}
+<section class="featured-projects">
+  <div class="container">
+    <h2>Proyectos Destacados</h2>
+
+    {% assign featured_projects = site.data.projects.projects | where:
+    "featured", true %} {% if featured_projects.size > 0 %}
+    <div class="projects-grid">
+      {% for project in featured_projects limit:3 %}
+      <div class="project-card">
+        {% if project.image %}
+        <img src="{{ project.image }}" alt="{{ project.name }}" />
+        {% endif %}
+
+        <h3>{{ project.name }}</h3>
+
+        {% if project.acronym %}
+        <span class="project-acronym">{{ project.acronym }}</span>
+        {% endif %}
+
+        <p>{{ project.description_short }}</p>
+
+        <div class="project-meta">
+          <span class="project-year">
+            {{ project.year_start }} {% if project.year_end %} - {{
+            project.year_end }} {% else %} - Presente {% endif %}
+          </span>
+
+          <span class="project-status status-{{ project.status }}">
+            {% if project.status == "active" %}En Curso{% endif %} {% if
+            project.status == "completed" %}Finalizado{% endif %} {% if
+            project.status == "planned" %}Planificado{% endif %}
+          </span>
+        </div>
+
+        {% if project.link %}
+        <a href="{{ project.link }}" class="btn btn-sm" target="_blank"
+          >Más información</a
+        >
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="/projects.html" class="btn btn-primary"
+        >Ver todos los proyectos</a
+      >
+    </div>
+    {% else %}
+    <p>No hay proyectos destacados en este momento.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Últimas Publicaciones -->
+{% if site.data.home.show_recent_publications %}
+<section class="recent-publications">
+  <div class="container">
+    <h2>Publicaciones Recientes</h2>
+
+    {% assign count = site.data.home.recent_publications_count | default: 5 %}
+    {% assign recent_pubs = site.publications | where: "status", "published" |
+    sort: 'year' | reverse %} {% if recent_pubs.size > 0 %}
+    <div class="publications-list">
+      {% for pub in recent_pubs limit:count %}
+      <div class="publication-item">
+        <h3>{{ pub.title }}</h3>
+
+        <p class="authors">{{ pub.authors }}</p>
+
+        <p class="venue">
+          <em>{{ pub.venue }}</em>
+          {% if pub.volume %}, {{ pub.volume }}{% endif %} {% if pub.pages %},
+          pp. {{ pub.pages }}{% endif %} , {{ pub.year }}
+        </p>
+
+        <div class="pub-links">
+          {% if pub.pdf %}
+          <a href="{{ pub.pdf }}" class="btn btn-sm" target="_blank">
+            <i class="fas fa-file-pdf"></i> PDF
+          </a>
+          {% endif %} {% if pub.doi %}
+          <a
+            href="https://doi.org/{{ pub.doi }}"
+            class="btn btn-sm"
+            target="_blank"
+          >
+            <i class="fas fa-link"></i> DOI
+          </a>
+          {% endif %} {% if pub.link %}
+          <a href="{{ pub.link }}" class="btn btn-sm" target="_blank">
+            <i class="fas fa-external-link-alt"></i> Link
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="/publications.html" class="btn btn-primary"
+        >Ver todas las publicaciones</a
+      >
+    </div>
+    {% else %}
+    <p>No hay publicaciones disponibles.</p>
+    {% endif %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Miembros del Equipo Preview -->
+<section class="team-preview">
+  <div class="container">
+    <h2>Nuestro Equipo</h2>
+
+    {% assign active_members = site.data.members.members | where: "active", true
+    | sort: "order" %} {% if active_members.size > 0 %}
+    <div class="members-carousel">
+      {% for member in active_members limit:6 %}
+      <div class="member-card-small">
+        {% if member.photo %}
+        <img src="{{ member.photo }}" alt="{{ member.name }}" />
+        {% else %}
+        <div class="member-placeholder">{{ member.name | slice: 0 }}</div>
+        {% endif %}
+
+        <h4>{{ member.name }}</h4>
+        <p class="position">{{ member.position }}</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+      <a href="/members.html" class="btn btn-primary"
+        >Conocer al equipo completo</a
+      >
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Últimas Noticias (Opcional) -->
+{% if site.news.size > 0 %}
+<section class="recent-news">
+  <div class="container">
+    <h2>Noticias</h2>
+
+    {% assign recent_news = site.news | where: "published", true | sort: 'date'
+    | reverse %}
+
+    <div class="news-list">
+      {% for news in recent_news limit:3 %}
+      <div class="news-item">
+        <span class="news-date">{{ news.date | date: "%d/%m/%Y" }}</span>
+        <h3>{{ news.title }}</h3>
+        <p>{{ news.content | strip_html | truncate: 200 }}</p>
+
+        {% if news.image %}
+        <img src="{{ news.image }}" alt="{{ news.title }}" class="news-image" />
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<style>
+  /* Hero Section */
+  .hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4rem 2rem;
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .group-photo {
+    max-width: 800px;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .hero-section h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: white;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+  }
+
+  /* Sections */
+  section {
+    padding: 3rem 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  section h2 {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: #333;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 0.5rem;
+  }
+
+  /* Projects Grid */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .project-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 1.5rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .project-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+  }
+
+  .project-acronym {
+    background: #667eea;
+    color: white;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: bold;
+  }
+
+  .project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .project-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+
+  .status-active {
+    background: #e3f2fd;
+    color: #1976d2;
+  }
+
+  .status-completed {
+    background: #e8f5e9;
+    color: #388e3c;
+  }
+
+  .status-planned {
+    background: #fff3e0;
+    color: #f57c00;
+  }
+
+  /* Publications */
+  .publication-item {
+    border-bottom: 1px solid #e0e0e0;
+    padding: 1.5rem 0;
+  }
+
+  .publication-item:last-child {
+    border-bottom: none;
+  }
+
+  .publication-item h3 {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+  }
+
+  .authors {
+    color: #666;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .venue {
+    color: #888;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+  }
+
+  .pub-links {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Members Carousel */
+  .members-carousel {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  .member-card-small {
+    text-align: center;
+  }
+
+  .member-card-small img,
+  .member-placeholder {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 0.75rem;
+    display: block;
+  }
+
+  .member-placeholder {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+
+  .member-card-small h4 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .position {
+    font-size: 0.85rem;
+    color: #666;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background 0.3s;
+    font-weight: 500;
+  }
+
+  .btn:hover {
+    background: #5568d3;
+  }
+
+  .btn-sm {
+    padding: 0.35rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .mt-4 {
+    margin-top: 2rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .hero-section h1 {
+      font-size: 2rem;
+    }
+
+    .projects-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .members-carousel {
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    }
+  }
+</style>
